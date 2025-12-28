@@ -1,0 +1,191 @@
+:root {
+  /* Premium Palette */
+  --core-primary: #06487E;
+  /* Updated Brand Color */
+  --core-primary-hover: #04365F;
+  --core-secondary: #64748B;
+  --core-bg: #F3F4F6;
+  /* Cool Gray 100 */
+  --core-card-bg: #FFFFFF;
+  --core-text-main: #111827;
+  /* Gray 900 */
+  --core-text-muted: #6B7280;
+  /* Gray 500 */
+  --core-border: #E5E7EB;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Buka/Tutup Transition */
+  --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  /* Premium Mesh Gradient Background */
+  background: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+  background-color: #F3F4F6;
+  /* Fallback */
+  background-image:
+    radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
+  background-attachment: fixed;
+  color: var(--core-text-main) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Cards --- */
+.card,
+.card-soft {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px !important;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  transition: var(--transition-fast);
+}
+
+.card:hover,
+.card-soft:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-4px);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.05),
+    0 10px 10px -5px rgba(0, 0, 0, 0.01);
+  border-color: rgba(79, 70, 229, 0.3);
+}
+
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* --- Buttons --- */
+.btn {
+  border-radius: 10px !important;
+  padding: 10px 20px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--core-primary) !important;
+  border-color: var(--core-primary) !important;
+  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: var(--core-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(79, 70, 229, 0.3);
+}
+
+.btn-outline-primary {
+  color: var(--core-primary) !important;
+  border-color: var(--core-primary) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--core-primary) !important;
+  color: #fff !important;
+}
+
+/* --- Forms --- */
+.form-control {
+  border-radius: 12px;
+  border: 1px solid var(--core-border);
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  background-color: #FAFAFA;
+}
+
+.form-control:focus {
+  background-color: #fff;
+  border-color: var(--core-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* --- Navigation / Sidebar --- */
+.sidebar-link {
+  border-radius: 12px;
+  color: var(--core-secondary);
+  font-weight: 500;
+  padding: 12px 16px;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-link:hover {
+  background-color: #EEF2FF;
+  /* Indigo 50 */
+  color: var(--core-primary);
+}
+
+.sidebar-link.active {
+  background-color: var(--core-primary);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.sidebar-link.active svg {
+  color: white;
+}
+
+/* --- Badges --- */
+.badge {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* --- Header --- */
+.core-header {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.6);
+  z-index: 50;
+}
+
+/* --- Utility --- */
+.text-primary {
+  color: var(--core-primary) !important;
+}
+
+.bg-primary-soft {
+  background-color: #EEF2FF;
+  color: var(--core-primary);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
