@@ -5,7 +5,6 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Teacher\TeachingJournalController;
 use App\Http\Controllers\Teacher\GradeController;
 
-// Add ->middleware('auth:sanctum') when enabling auth
 Route::group([], function () {
     // Attendance
     Route::post('attendance/scan',   [AttendanceController::class,'scan']);
@@ -14,7 +13,6 @@ Route::group([], function () {
     Route::get('attendance/recap',   [AttendanceController::class,'recap']);
 
     // Teacher modules
-    // Route must match controller signature: store(Request $request, ScheduleSession $session)
     Route::get('teacher/sessions/{session}/data', [TeachingJournalController::class,'getData']);
     Route::post('teacher/sessions/{session}/journals', [TeachingJournalController::class,'store']);
 
