@@ -1,11 +1,21 @@
-@import 'tailwindcss';
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@import "tailwindcss";
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+@layer components {
+    .card-soft {
+        @apply bg-white rounded-2xl shadow-soft border border-slate-100;
+    }
+}
+
+.card-soft {
+    @apply bg-white rounded-2xl shadow-soft border border-slate-100;
+}
+.text-muted {
+    @apply text-slate-500;
+}
+.kpi {
+    @apply bg-white rounded-2xl shadow-soft border border-slate-100 p-5;
 }
