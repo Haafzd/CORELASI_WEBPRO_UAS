@@ -13,7 +13,74 @@
   </div>
 
 <div class="row g-4">
-     {{-- Right: Assignments --}}
+    {{-- Left: Materials --}}
+    <div class="col-12 col-lg-6">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h5 class="fw-bold mb-1">Materi Pembelajaran</h5>
+                <p class="text-muted small mb-0">Sumber & Panduan Pembelajaran Siswa</p>
+            </div>
+            <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addModal" onclick="setModalType('materi')">
+                + Materi
+            </button>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+            @forelse($materi as $m)
+            <div class="card-soft p-4 position-relative group-action">
+                {{-- Action Dropdown --}}
+                <div class="position-absolute top-0 end-0 p-3">
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-link text-muted no-caret p-0" data-bs-toggle="dropdown">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                            </svg>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-3 overflow-hidden">
+                            <li><a class="dropdown-item py-2 small" href="#" onclick="openEditMaterial('{{ $m->id }}','{{ $m->title }}','{{ $m->description }}','{{ $m->external_link }}')">Edit</a></li>
+                            <li>
+                                <form action="{{ route('teacher.material.destroy', $m->id) }}" method="POST" onsubmit="return confirm('Hapus materi ini?')">
+                                    @csrf @method('DELETE')
+                                    <button class="dropdown-item py-2 small text-danger">Hapus</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <span class="badge bg-blue-100 text-blue-700 rounded-pill px-3 py-1 small fw-semibold">Materi</span>
+                </div>
+                <h6 class="fw-bold text-dark mb-2" style="font-size:1.1rem">{{ $m->title }}</h6>
+                <p class="text-secondary mb-3 description-text" style="line-height:1.6; font-size:.95rem">
+                    @if(strlen($m->description) > 120)
+                        <span class="text-truncated">
+                            {{ Str::limit($m->description, 120) }}
+                        </span>
+                        <span class="text-full d-none">
+                            {{ $m->description }}
+                        </span>
+                        <a href="javascript:void(0)" class="text-primary text-decoration-none small fw-bold ms-1" onclick="toggleDescription(this)">Baca Selengkapnya</a>
+                    @else
+                        {{ $m->description }}
+                    @endif
+                </p>
+                @if($m->external_link)
+                <a href="{{ $m->external_link }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+                    Buka Tautan 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/><path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/></svg>
+                </a>
+                @endif
+            </div>
+            @empty
+            <div class="text-center py-5 text-muted bg-light rounded-3 border border-dashed">
+                Belum ada materi dibagikan.
+            </div>
+            @endforelse
+        </div>
+    </div>
+
+    {{-- Right: Assignments --}}
     <div class="col-12 col-lg-6">
         <div class="d-flex align-items-center justify-content-between mb-4">
             <div>
@@ -95,6 +162,7 @@
 </div>
 
 </div>
+
 {{-- Add Modal --}}
 <div class="modal fade" id="addModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -129,6 +197,38 @@
                 <div class="modal-footer border-0 pt-0 px-4 pb-4">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Edit Material Modal --}}
+<div class="modal fade" id="editMaterialModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:20px">
+            <form id="editMaterialForm" method="POST">
+                @csrf @method('PUT')
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Edit Materi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted text-uppercase">Judul</label>
+                        <input type="text" name="title" id="editMatTitle" class="form-control form-control-lg" required style="border-radius:12px">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted text-uppercase">Deskripsi</label>
+                        <textarea name="description" id="editMatDesc" class="form-control" rows="4" style="border-radius:12px"></textarea>
+                    </div>
+                    <div class="mb-3">
+                         <label class="form-label fw-semibold small text-muted text-uppercase">Tautan Luar</label>
+                         <input type="url" name="link" id="editMatLink" class="form-control" style="border-radius:12px">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">Update</button>
                 </div>
             </form>
         </div>
@@ -200,7 +300,7 @@
 </div>
 
 <script>
-       function setModalType(type) {
+    function setModalType(type) {
         document.getElementById('modalTypeInput').value = type;
         const titleEl = document.getElementById('addModalTitle');
         const deadlineGroup = document.getElementById('deadlineInputGroup');
@@ -216,11 +316,20 @@
             deadlineInput.required = true;
         }
     }
-     function openEditAssignment(id, title, desc, link, deadline) {
+
+    function openEditMaterial(id, title, desc, link) {
+        document.getElementById('editMatTitle').value = title;
+        document.getElementById('editMatDesc').value = desc;
+        document.getElementById('editMatLink').value = link || '';
+        document.getElementById('editMaterialForm').action = `/teacher/materials/${id}`;
+        
+        new bootstrap.Modal(document.getElementById('editMaterialModal')).show();
+    }
+
+    function openEditAssignment(id, title, desc, link, deadline) {
         document.getElementById('editAssTitle').value = title;
         document.getElementById('editAssDesc').value = desc;
         document.getElementById('editAssLink').value = link || '';
-        // format deadline untuk di datetime indonesia (YYYY-MM-DDTHH:MM)
         document.getElementById('editAssDeadline').value = deadline.replace(' ', 'T').substring(0, 16);
         
         document.getElementById('editAssignmentForm').action = `/teacher/assignments/${id}`;
@@ -314,12 +423,11 @@
         .then(r => r.json())
         .then(res => {
             const cell = document.getElementById(`score-cell-${nis}`);
-            // nampilin skor baru yang lebih besar
             cell.innerHTML = `<span class="fw-bold text-dark fs-5 fade-in">${score}</span>`;
         })
         .catch(err => alert('Gagal menyimpan nilai. Periksa koneksi internet.'));
     }
-    
+
     function toggleDescription(el) {
         const container = el.parentElement;
         const truncated = container.querySelector('.text-truncated');
@@ -336,7 +444,6 @@
         }
     }
 
-     // otomatis bakal buka modal grading jika direq dari dashboard
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         const openGradingId = urlParams.get('open_grading');
@@ -353,4 +460,3 @@
     });
 </script>
 @endsection
-
