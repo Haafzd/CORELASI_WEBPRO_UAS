@@ -9,7 +9,6 @@ return new class extends Migration {
     Schema::create('teachers', function(Blueprint $t){
       $t->string('nip',50)->primary();
       $t->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-      // $t->foreign('nip')->references('id')->on('users')->cascadeOnDelete(); // REMOVED: Type mismatch
       $t->string('phone',20)->nullable();
       $t->boolean('is_duty_teacher')->default(false);
     });

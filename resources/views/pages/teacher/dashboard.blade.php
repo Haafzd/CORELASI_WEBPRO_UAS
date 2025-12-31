@@ -10,7 +10,7 @@
     <div class="d-flex align-items-end justify-content-between">
         <div>
             <h2 class="fw-bold text-dark mb-1" style="font-size:1.75rem; letter-spacing:-0.02em">
-                {{ $greeting }}, {{ explode(' ', $user->name)[0] }}! 👋
+                {{ $greeting }}, {{ explode(' ', $user->name)[0] }}! 
             </h2>
             <p class="text-secondary mb-0" style="font-size:1.05rem">
                 Siap untuk mengajar hari ini?
@@ -229,32 +229,18 @@
 
   <script>
       document.addEventListener('DOMContentLoaded', function() {
-          // 1. Search Bar Logic
           const searchInput = document.getElementById('searchInput');
           if(searchInput) {
               searchInput.addEventListener('keyup', function() {
                   const query = this.value.toLowerCase();
-
-                  // A. Filter "Jadwal Hari Ini" (Schedule Items)
-                  // These are direct children divs in the schedule container. Reference by text content.
-                  // We need a specific selector. Let's assume the parent container or add a class to items.
-                  // The items are: <div class="p-4 rounded-4 bg-white shadow-sm position-relative ...">
-                  // Let's select them by a common characteristic or add a class in the blade loop if possible.
-                  // Since we can't edit Blade loop easily without reloading context, let's use a broad selector within the left column.
-                  // Left column is col-lg-8.
-                  
-                  // Strategy: Select all "cards" that look like schedule items or course cards.
                   const scheduleItems = document.querySelectorAll('.col-lg-8 .p-4.rounded-4.bg-white.shadow-sm'); 
                   const courseCards = document.querySelectorAll('.card-soft');
-
-                  // Filter Schedule
                   scheduleItems.forEach(item => {
-                      // Avoid filtering the "No Schedule" empty state
                       if(item.querySelector('img')) return; 
 
                       const text = item.textContent.toLowerCase();
                       if(text.includes(query)) {
-                          item.style.display = 'flex'; // Restore flex for schedule items
+                          item.style.display = 'flex';
                           item.classList.remove('d-none');
                       } else {
                           item.style.display = 'none';
@@ -262,10 +248,9 @@
                       }
                   });
 
-                  // Filter Courses
                   courseCards.forEach(card => {
                       const text = card.textContent.toLowerCase();
-                      const parentCol = card.closest('.col-12'); // The filter target (grid column)
+                      const parentCol = card.closest('.col-12');
                       
                       if(text.includes(query)) {
                           if(parentCol) parentCol.style.display = 'block';
@@ -276,7 +261,6 @@
               });
           }
 
-          // 2. BAP Modal Logic
           const bapModal = document.getElementById('bapModal');
           const btnSave = document.getElementById('btnSaveBap');
           
@@ -285,39 +269,29 @@
                   const button = event.relatedTarget;
                   const sessionId = button.getAttribute('data-session-id');
                   
-                  // Reset Form
                   document.getElementById('bapForm').reset();
                   document.getElementById('attendanceParams').innerHTML = '<tr><td colspan="4" class="text-center text-muted">Memuat data...</td></tr>';
                   
-                  // Fetch Data
                   fetch(`/teacher/schedule/${sessionId}/bap-data`)
                     .then(r => r.json())
                     .then(data => {
-                        // Populate Header
                         document.getElementById('bapSessionId').value = sessionId;
                         document.getElementById('modalSubject').textContent = data.session.subject.name;
                         document.getElementById('bapClass').value = data.session.classroom.name;
                         document.getElementById('bapDate').value = data.date_formatted;
 
-                        // Populate Journal if existing
                         if(data.journal) {
                             document.getElementById('bapTopic').value = data.journal.topic || '';
                             document.getElementById('bapNotes').value = data.journal.observation_notes || '';
                             document.getElementById('bapLocation').value = data.journal.location || '';
                         }
 
-                        // Populate Attendance
                         const tbody = document.getElementById('attendanceParams');
                         tbody.innerHTML = '';
                         
                         data.students.forEach((s, index) => {
                             let statusHtml = '';
                             let checkboxHtml = '';
-                            
-                            // Logic: 
-                            // If Sakit/Izin -> Readonly Label
-                            // If Alpa/Hadir -> Checkbox (Checked if Hadir)
-                            
                             const isReadOnly = (s.status === 'sakit' || s.status === 'izin');
                             const isHadir = (s.status === 'hadir');
                             
@@ -331,7 +305,6 @@
                                 statusHtml = `<span class="badge ${badgeClass} text-uppercase">${s.status}</span>`;
                                 checkboxHtml = `<input type="hidden" name="attendance[${index}][status]" value="${s.status}">`;
                             } else {
-                                // Dynamic badge ID for updating
                                 const badgeId = `badge-${s.nis}`;
                                 statusHtml = `<span id="${badgeId}" class="badge ${badgeClass} text-uppercase">${s.status}</span>`;
                                 
@@ -372,21 +345,12 @@
                     });
               });
               
-              // Submit Logic
               document.getElementById('bapForm').addEventListener('submit', function(e) {
                   e.preventDefault();
                   const sessionId = document.getElementById('bapSessionId').value;
-                  const formData = new FormData(this); // Collects all inputs including dynamic attendance
+                  const formData = new FormData(this); 
                   
-                  // Convert FormData to JSON object for easier debugging or send as JSON
                   const json = Object.fromEntries(formData.entries());
-                   // Note: 'attendance' is array, FormData handles it as flattened keys.
-                   // Laravel Request handles standard FormData fine. 
-                   // However, for API consistency let's use fetch body.
-                   
-                   // Helper to build object from form data assuming array naming
-                   // Actually standard fetch with body=formData works great with Laravel.
-
                   btnSave.disabled = true;
                   btnSave.textContent = 'Menyimpan...';
 
@@ -394,7 +358,7 @@
                       method: 'POST',
                       headers: {
                           'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                          'Accept': 'application/json' // Force JSON response
+                          'Accept': 'application/json' 
                       },
                       body: formData
                   })
@@ -402,11 +366,9 @@
                   .then(res => {
                       if(res.message) {
                           alert(res.message);
-                          // Close modal manually
                           const modalEl = document.getElementById('bapModal');
                           const modal = bootstrap.Modal.getInstance(modalEl);
                           modal.hide();
-                          // Maybe refresh to update "Buka" status?
                       } else {
                           alert('Terjadi kesalahan.');
                       }
