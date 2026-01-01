@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Create connection pool
+// create connection pool
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USERNAME,
@@ -20,41 +20,20 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// Helper for query execution
+// Helper buat ngejalanin query
 const db = pool.promise();
 
-// Routes
+
 app.get('/', (req, res) => {
     res.json({ message: 'Corelasi Node Service is running!' });
 });
 
-/**
- * GET /api/schedule
- * Fetch schedule for a specific teacher/user.
- * Query Params: ?user_id=X (Optional, defaults to fetching all for today for demo)
- */
+
 app.get('/api/schedule', async (req, res) => {
     try {
-        const userId = req.query.user_id; // Pass user_id explicitly since we don't share Auth session easily
-        const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }); // e.g. "Monday"
-
-        // Map English day to Database integer (0=Mon, 6=Sun) or String if DB uses Strings
-        // Looking at seeders, it seems DB uses Integers 0-6 or 1-7.
-        // Let's assume standard Carbon DayOfWeek: 0=Sunday, 1=Monday... 
-        // Wait, Laravel uses 0 for Sunday usually?
-        // Let's check a sample query or just return all for specific teacher to start safe.
-        // DashboardController: ->where('weekday', $today) where $today = Carbon::now()->dayOfWeek;
-        // Carbon::dayOfWeek returns 0 (Sunday) to 6 (Saturday).
-
-        const dayOfWeek = new Date().getDay(); // 0 = Sunday, 1 = Monday... matches Carbon.
-
-        /* 
-         * Query Logic:
-         * Join schedule_sessions -> subjects
-         * Join schedule_sessions -> classrooms
-         * Join teachers -> users (to filter by user_id)
-         */
-
+        const userId = req.query.user_id; 
+        const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+        const dayOfWeek = new Date().getDay(); 
         let query = `
             SELECT 
                 ss.id,
