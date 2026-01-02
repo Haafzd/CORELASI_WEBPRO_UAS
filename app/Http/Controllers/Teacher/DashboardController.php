@@ -12,22 +12,16 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Get today's weekday for "Today Schedule"
         $today = Carbon::now()->locale('id')->isoFormat('dddd');
-        // Fallback for dev if day names mismatch (e.g. English system vs Indo seeder)
-        // Seeder uses: Senin, Selasa, etc.
 
         $user = Auth::user();
-        // Assuming relationship: User -> Teacher
-        // We need the teacher model to get NIP/ID
-        $teacher = $user->teacher; // Make sure this relationship exists in User model
+        $teacher = $user->teacher;
 
         if (!$teacher) {
-            // Handle case if user is not a teacher (e.g. admin or student logged in by mistake)
-             $todaySchedule = collect([]);
-             $courses = collect([]);
+            $todaySchedule = collect([]);
+            $courses = collect([]);
         } else {
-             $todaySchedule = ScheduleSession::with(['subject', 'classroom'])
+            $todaySchedule = ScheduleSession::with(['subject', 'classroom'])
                 ->where('teacher_nip', $teacher->nip)
                 ->where('weekday', $today)
                 ->where('is_active', true)
@@ -39,7 +33,7 @@ class DashboardController extends Controller
                 ->where('weekday', $today)
                 ->get()
                 ->unique(function ($session) {
-                     return $session->subject_code . '-' . $session->classroom_id;
+                    return $session->subject_code . '-' . $session->classroom_id;
                 })
                 ->map(function ($session) {
                     return [
@@ -47,25 +41,26 @@ class DashboardController extends Controller
                         'name' => $session->subject->name ?? 'Unknown',
                         'session_id' => $session->id,
                         'class' => $session->classroom->name ?? '-',
-                        'room' => $session->classroom->name ?? '-', 
+                        'room' => $session->classroom->name ?? '-',
                         'color' => '#EEF2FF'
                     ];
                 });
 
-            // Get Assignments needing grading
-            $ungradedAssignments = \App\Models\Assignment::whereHas('session', function($q) use ($teacher) {
+            $ungradedAssignments = \App\Models\Assignment::whereHas('session', function ($q) use ($teacher) {
                 $q->where('teacher_nip', $teacher->nip);
             })
-            ->with(['session.subject', 'session.classroom'])
-            ->withCount(['submissions' => function($q) {
-                $q->whereNull('score')->whereIn('status', ['Tepat Waktu', 'Terlambat']);
-            }])
-            ->having('submissions_count', '>', 0)
-            ->take(5)
-            ->get();
+                ->with(['session.subject', 'session.classroom'])
+                ->withCount([
+                    'submissions' => function ($q) {
+                        $q->whereNull('score')->whereIn('status', ['Tepat Waktu', 'Terlambat']);
+                    }
+                ])
+                ->having('submissions_count', '>', 0)
+                ->take(5)
+                ->get();
         }
 
-        if(request()->wantsJson()) {
+        if (request()->wantsJson()) {
             return response()->json([
                 'todaySchedule' => $todaySchedule,
                 'courses' => $courses,
@@ -74,8 +69,6 @@ class DashboardController extends Controller
             ]);
         }
 
-
-        // Greeting Logic
         $hour = Carbon::now('Asia/Jakarta')->hour;
         if ($hour < 11) {
             $greeting = 'Selamat Pagi';
