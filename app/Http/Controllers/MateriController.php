@@ -12,9 +12,9 @@ class MateriController extends Controller
     {
         $subject = $session->subject;
         $materi = \App\Models\LearningMaterial::where('schedule_session_id', $session->id)->get();
-        $tugas  = \App\Models\Assignment::where('schedule_session_id', $session->id)->get();
+        $tugas = \App\Models\Assignment::where('schedule_session_id', $session->id)->get();
 
-        if(request()->wantsJson()) {
+        if (request()->wantsJson()) {
             return response()->json([
                 'session' => $session->load('subject', 'classroom'),
                 'materi' => $materi,
@@ -29,45 +29,42 @@ class MateriController extends Controller
     {
         $validated = $request->validate([
             'schedule_session_id' => 'required|exists:schedule_sessions,id',
-            'type'                => 'required|in:materi,tugas',
-            'title'               => 'required|string|max:255',
-            'description'         => 'sometimes|nullable|string', // Description for materi, Instruction for tugas?
-            'instruction'         => 'sometimes|nullable|string', // Use instruction for tugas
-            'link'                => 'nullable|url',
-            'deadline_at'         => 'nullable|required_if:type,tugas|date',
+            'type' => 'required|in:materi,tugas',
+            'title' => 'required|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'instruction' => 'sometimes|nullable|string',
+            'link' => 'nullable|url',
+            'deadline_at' => 'nullable|required_if:type,tugas|date|after_or_equal:today',
         ]);
 
         if ($validated['type'] === 'materi') {
             \App\Models\LearningMaterial::create([
                 'schedule_session_id' => $validated['schedule_session_id'],
-                'title'               => $validated['title'],
-                'description'         => $validated['description'], // Field name mismatch? Check model
-                'external_link'       => $validated['link'],
-                'publish_status'      => 'Published'
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'external_link' => $validated['link'],
+                'publish_status' => 'Published'
             ]);
         } else {
             $assignment = \App\Models\Assignment::create([
                 'schedule_session_id' => $validated['schedule_session_id'],
-                'title'               => $validated['title'],
-                'instruction'         => $validated['description'], // View probably sends 'description' for both?
-                'external_problem_link'=> $validated['link'],
-                'deadline_at'         => $validated['deadline_at'],
-                'publish_status'      => 'Published'
+                'title' => $validated['title'],
+                'instruction' => $validated['description'],
+                'external_problem_link' => $validated['link'],
+                'deadline_at' => $validated['deadline_at'],
+                'publish_status' => 'Published'
             ]);
 
             // Notify Students
             $session = \App\Models\ScheduleSession::with('classroom.students.user')->find($validated['schedule_session_id']);
-            if($session && $session->classroom) {
-                foreach($session->classroom->students as $student) {
-                    if($student->user) {
+            if ($session && $session->classroom) {
+                foreach ($session->classroom->students as $student) {
+                    if ($student->user) {
                         $student->user->notify(new \App\Notifications\AssignmentCreated($assignment->load('session.subject')));
                     }
                 }
             }
 
-            // Notification for Teacher (Confirmation)
-            // Since there is no student panel yet, user wants to see the notification too.
-            // Also good practice for confirmation.
             $request->user()->notify(new \App\Notifications\AssignmentCreated($assignment));
         }
 
@@ -78,14 +75,14 @@ class MateriController extends Controller
     public function updateMaterial(Request $request, \App\Models\LearningMaterial $material)
     {
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'link'        => 'nullable|url',
+            'link' => 'nullable|url',
         ]);
 
         $material->update([
-            'title'         => $validated['title'],
-            'description'   => $validated['description'],
+            'title' => $validated['title'],
+            'description' => $validated['description'],
             'external_link' => $validated['link'],
         ]);
 
@@ -103,17 +100,17 @@ class MateriController extends Controller
     public function updateAssignment(Request $request, \App\Models\Assignment $assignment)
     {
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'required|string', // Maps to instruction
-            'link'        => 'nullable|url',
-            'deadline_at' => 'required|date',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'link' => 'nullable|url',
+            'deadline_at' => 'required|date|after_or_equal:today',
         ]);
 
         $assignment->update([
-            'title'                 => $validated['title'],
-            'instruction'           => $validated['description'],
+            'title' => $validated['title'],
+            'instruction' => $validated['description'],
             'external_problem_link' => $validated['link'],
-            'deadline_at'           => $validated['deadline_at'],
+            'deadline_at' => $validated['deadline_at'],
         ]);
 
         return back()->with('success', 'Tugas berhasil diperbarui!');
@@ -131,7 +128,7 @@ class MateriController extends Controller
         // Get all students in the class
         // Assignment -> Session -> Classroom
         // Check if session relation is loaded, if not load it
-        if(!$assignment->relationLoaded('session')) {
+        if (!$assignment->relationLoaded('session')) {
             $assignment->load('session');
         }
 
@@ -146,12 +143,12 @@ class MateriController extends Controller
             ->get()
             ->keyBy('student_nis');
 
-        $data = $students->map(function($student) use ($submissions) {
+        $data = $students->map(function ($student) use ($submissions) {
             $sub = $submissions->get($student->nis);
             return [
                 'nis' => $student->nis,
                 'name' => $student->user->full_name,
-                'note' => $sub ? $sub->student_note : '-', // This is the "Deskripsi"
+                'note' => $sub ? $sub->student_note : '-',
                 'score' => $sub ? $sub->score : null,
                 'status' => $sub ? $sub->status : 'Belum Mengumpulkan',
                 'submission_id' => $sub ? $sub->id : null
@@ -159,7 +156,7 @@ class MateriController extends Controller
         });
 
         return response()->json([
-            'assignment' => $assignment->only(['id','title']),
+            'assignment' => $assignment->only(['id', 'title']),
             'students' => $data
         ]);
     }
@@ -180,7 +177,7 @@ class MateriController extends Controller
 
         $submission->score = $validated['score'];
         $submission->status = 'Sudah Dinilai';
-        
+
         // Handle constraint for new manual grading (no file)
         if (!$submission->exists) {
             $submission->file_path = '-';
@@ -191,7 +188,7 @@ class MateriController extends Controller
 
         // Send Notification
         $student = \App\Models\Student::where('nis', $validated['student_nis'])->with('user')->first();
-        if($student && $student->user) {
+        if ($student && $student->user) {
             $assignment = \App\Models\Assignment::find($validated['assignment_id']);
             $student->user->notify(new \App\Notifications\GradeReleased($assignment, $validated['score']));
         }

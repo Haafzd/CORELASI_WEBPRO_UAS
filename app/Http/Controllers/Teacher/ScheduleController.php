@@ -11,33 +11,47 @@ class ScheduleController extends Controller
 {
     public function index()
     {
-        // For now, assume logged in user is authorized and has a teacher profile
-        // In real app, check Auth::user()->teacher
         $user = Auth::user();
+        try {
+            $response = \Illuminate\Support\Facades\Http::get('http://localhost:3000/api/schedule', [
+                'user_id' => $user->id
+            ]);
 
-        // 1. Get Teacher Profile
-        $teacher = $user->teacher; // Assuming User hasOne Teacher
-        
-        if(!$teacher) {
+            if ($response->successful()) {
+                $data = $response->json()['data'];
+                $schedules = collect($data)->map(function ($item) {
+                    return (object) [
+                        'id' => $item['id'],
+                        'start_time' => $item['start_time'],
+                        'end_time' => $item['end_time'],
+                        'weekday' => $item['weekday'],
+                        'subject' => (object) [
+                            'name' => $item['subject_name'],
+                            'code' => $item['subject_code'],
+                            'description' => $item['subject_description'] ?? ''
+                        ],
+                        'classroom' => (object) [
+                            'name' => $item['classroom_name']
+                        ]
+                    ];
+                });
+            } else {
+                \Illuminate\Support\Facades\Log::error('Node Service Error: ' . $response->body());
+                $schedules = collect([]);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Node Service Connectivity Error: ' . $e->getMessage());
             $schedules = collect([]);
-        } else {
-            // 2. Fetch schedules filtered by Teacher NIP
-            $schedules = ScheduleSession::with(['subject', 'classroom'])
-                ->where('teacher_nip', $teacher->nip) // Strict filter
-                ->where('is_active', true)
-                ->orderBy('start_time') // Order by time within the day
-                ->get();
         }
 
-        // Define expected weekdays order (Indonesian)
         $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-        
-        // Group by weekday and Ensure all days exist
-        $scheduleByDay = collect($days)->mapWithKeys(function($day) use ($schedules) {
+
+       
+        $scheduleByDay = collect($days)->mapWithKeys(function ($day) use ($schedules) {
             return [$day => $schedules->where('weekday', $day)->values()];
         });
 
-        if(request()->wantsJson()) {
+        if (request()->wantsJson()) {
             return response()->json($scheduleByDay);
         }
 
