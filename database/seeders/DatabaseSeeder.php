@@ -17,8 +17,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             CorelasiTeacherOnlySeeder::class,
-            DummyDataSeeder::class,
             ScheduleSeeder::class,
+            DummyDataSeeder::class,
         ]);
 
         // User::factory(10)->create();
