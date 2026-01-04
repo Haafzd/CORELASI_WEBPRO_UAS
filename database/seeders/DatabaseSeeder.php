@@ -9,23 +9,12 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         $this->call([
             CorelasiTeacherOnlySeeder::class,
-            DummyDataSeeder::class,
             ScheduleSeeder::class,
+            DummyDataSeeder::class,
         ]);
-
-        // User::factory(10)->create();
-
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
     }
 }

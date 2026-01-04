@@ -55,7 +55,6 @@ class MateriController extends Controller
                 'publish_status' => 'Published'
             ]);
 
-            // Notify Students
             $session = \App\Models\ScheduleSession::with('classroom.students.user')->find($validated['schedule_session_id']);
             if ($session && $session->classroom) {
                 foreach ($session->classroom->students as $student) {
@@ -71,7 +70,6 @@ class MateriController extends Controller
         return redirect()->back()->with('success', ucfirst($validated['type']) . ' berhasil ditambahkan!');
     }
 
-    // Update Learning Material
     public function updateMaterial(Request $request, \App\Models\LearningMaterial $material)
     {
         $validated = $request->validate([
@@ -89,14 +87,12 @@ class MateriController extends Controller
         return back()->with('success', 'Materi berhasil diperbarui!');
     }
 
-    // Delete Learning Material
     public function destroyMaterial(\App\Models\LearningMaterial $material)
     {
         $material->delete();
         return back()->with('success', 'Materi berhasil dihapus!');
     }
 
-    // Update Assignment
     public function updateAssignment(Request $request, \App\Models\Assignment $assignment)
     {
         $validated = $request->validate([
@@ -116,18 +112,14 @@ class MateriController extends Controller
         return back()->with('success', 'Tugas berhasil diperbarui!');
     }
 
-    // Delete Assignment
     public function destroyAssignment(\App\Models\Assignment $assignment)
     {
         $assignment->delete();
         return back()->with('success', 'Tugas berhasil dihapus!');
     }
-    // Get Submissions for an Assignment
     public function getSubmissions(\App\Models\Assignment $assignment)
     {
-        // Get all students in the class
-        // Assignment -> Session -> Classroom
-        // Check if session relation is loaded, if not load it
+
         if (!$assignment->relationLoaded('session')) {
             $assignment->load('session');
         }
@@ -138,7 +130,6 @@ class MateriController extends Controller
             ->where('classroom_id', $classroomId)
             ->get();
 
-        // Get submissions keyed by student_nis
         $submissions = \App\Models\Submission::where('assignment_id', $assignment->id)
             ->get()
             ->keyBy('student_nis');
@@ -161,7 +152,6 @@ class MateriController extends Controller
         ]);
     }
 
-    // Grade a submission
     public function gradeSubmission(Request $request)
     {
         $validated = $request->validate([
@@ -178,7 +168,6 @@ class MateriController extends Controller
         $submission->score = $validated['score'];
         $submission->status = 'Sudah Dinilai';
 
-        // Handle constraint for new manual grading (no file)
         if (!$submission->exists) {
             $submission->file_path = '-';
             $submission->original_name = '-';
@@ -186,7 +175,6 @@ class MateriController extends Controller
 
         $submission->save();
 
-        // Send Notification
         $student = \App\Models\Student::where('nis', $validated['student_nis'])->with('user')->first();
         if ($student && $student->user) {
             $assignment = \App\Models\Assignment::find($validated['assignment_id']);

@@ -8,7 +8,7 @@
         <div class="d-flex align-items-end justify-content-between">
             <div>
                 <h2 class="fw-bold text-dark mb-1" style="font-size:1.75rem; letter-spacing:-0.02em">
-                    {{ $greeting }}, {{ !empty($user->name) ? explode(' ', $user->name)[0] : 'Guru' }}! 👋
+                    {{ $greeting }}
                 </h2>
                 <p class="text-secondary mb-0" style="font-size:1.05rem">
                     Siap untuk mengajar hari ini?
@@ -84,7 +84,6 @@
                                 class="text-decoration-none">
                                 <div class="d-flex align-items-center gap-3 p-3 rounded-4 hover-lift transition-all position-relative"
                                     style="background:#FFF5F5; border:1px solid #FED7D7">
-                                    {{-- Red Dot Indicator --}}
                                     <span
                                         class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
 
@@ -99,7 +98,6 @@
                                         </svg>
                                     </div>
                                     <div class="flex-grow-1 overflow-hidden">
-                                        {{-- Allow 2 lines for title --}}
                                         <h6 class="fw-bold text-dark mb-1"
                                             style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;">
                                             {{ $ua->title }}

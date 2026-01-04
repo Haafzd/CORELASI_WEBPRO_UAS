@@ -14,33 +14,17 @@ class GradeReleased extends Notification
     public $assignment;
     public $score;
 
-    /**
-     * Create a new notification instance.
-     *
-     * @param $assignment
-     * @param $score
-     */
     public function __construct($assignment, $score)
     {
         $this->assignment = $assignment;
         $this->score = $score;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
+  
     public function via(object $notifiable): array
     {
         return ['database'];
     }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
         return [

@@ -12,38 +12,20 @@ class TugasMTK extends Notification
     use Queueable;
     protected $assignment;
 
-    /**
-     * Create a new notification instance.
-     */
+  
     public function __construct($assignment)
     {
         //
         $this->assignment = $assignment;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['database'];
     }
-
-    /**
-     * Get the mail representation of the notification.
-     */
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
         return [
-            //
             'title' => 'Tugas Matmin Al-jabar Linear',
             'message' => 'Tugas "' . $this->assignment->title . '" telah ditambahkan. Segera cek!',
             'link' => route('pages.teacher.materi', $this->assignment->schedule_session_id ?? 1), // Default ke ID 1 jika dummy
