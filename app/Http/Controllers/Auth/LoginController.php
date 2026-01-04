@@ -22,14 +22,12 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            
-            // Redirect based on role
             $user = Auth::user();
             if ($user->role === 'Guru') {
                 return redirect()->intended(route('teacher.dashboard'));
             }
 
-            return redirect()->intended('/dashboard'); // Fallback
+            return redirect()->intended('/dashboard'); 
         }
 
         return back()->withErrors([

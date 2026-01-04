@@ -11,20 +11,15 @@ use Carbon\Carbon;
 
 class MobileApiController extends Controller
 {
-    /**
-     * API LOGIN
-     * Mobile mengirim: email, password
-     * Server membalas: data user & token (simple)
-     */
     public function login(Request $request)
     {
-        // 1. Validasi input
+        //  Validasi input
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        // 2. Cek Credential
+        // Cek Credential
         if (Auth::attempt($request->only('email', 'password'))) {
             $user = Auth::user();
             
@@ -38,8 +33,6 @@ class MobileApiController extends Controller
             }
 
             // 3. Return Data User
-            // Di production sebaiknya pakai Sanctum/Passport token.
-            // Untuk simpel saat ini kita return data user saja.
             return response()->json([
                 'success' => true,
                 'message' => 'Login Berhasil',
@@ -47,50 +40,34 @@ class MobileApiController extends Controller
                     'id' => $user->id,
                     'name' => $user->full_name ?? $user->name,
                     'email' => $user->email,
-                    'nip' => $user->teacher->nip ?? null, // Ambil NIP dari relasi teacher
+                    'nip' => $user->teacher->nip ?? null, 
                 ]
             ]);
         }
 
-        // Jika salah
         return response()->json([
             'success' => false,
             'message' => 'Email atau Password salah.'
         ], 401);
     }
 
-    /**
-     * API GET SCHEDULE (JADWAL HARI INI)
-     * Mobile butuh list kelas yang harus diajar HARI INI.
-     */
+    
+    /* API GET SCHEDULE (JADWAL HARI INI)*/
     public function getTodaySchedule(Request $request) 
     {
-        // Ambil user yang sedang login (bisa dari params atau auth)
-        // Karena mobile kita simple, kita bisa kirim user_id atau nip via query param sementara,
-        // atau jika nanti pakai token, ambil dari Auth::user().
-        
-        // Asumsi: Mobile mengirim ?nip=... atau kita cari user berdasarkan email param. 
-        // Best practice: Pakai Auth Token. Tapi kita buat fleksibel dulu.
-        
-        $nip = $request->nip; // Mobile kirim NIP setelah login berhasil
+        $nip = $request->nip; 
         
         if(!$nip) {
             return response()->json(['success'=>false, 'message'=>'NIP user diperlukan'], 400);
         }
-
-        // Cari Hari ini (Senin, Selasa, dll) dalam bhs Indonesia
         Carbon::setLocale('id');
-        // Force Day to Senin for Testing
-        // $todayName = 'Senin'; 
-        $todayName = Carbon::now()->isoFormat('dddd'); // "Senin", "Selasa"...
-
-        // Query Jadwal
+     
+        $todayName = Carbon::now()->isoFormat('dddd'); 
         \Illuminate\Support\Facades\Log::info("Mobile Schedule Req: NIP={$nip}, Day={$todayName}");
-        
         $schedules = ScheduleSession::with(['subject', 'classroom'])
             ->where('teacher_nip', $nip)
             ->where('weekday', $todayName)
-            ->where('is_active', true) // Re-enable active check
+            ->where('is_active', true) 
             ->orderBy('start_time')
             ->get()
             ->map(function($s) {

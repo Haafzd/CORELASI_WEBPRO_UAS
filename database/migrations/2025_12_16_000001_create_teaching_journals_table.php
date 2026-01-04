@@ -8,15 +8,11 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('teaching_journals', function (Blueprint $table) {
             $table->id();
-            // Link to schedule session
             $table->foreignId('schedule_session_id')->constrained('schedule_sessions')->cascadeOnDelete();
-            
-            // BAP Content
-            $table->date('journal_date'); // The actual date of teaching
-            $table->string('topic'); // "Materi"
-            $table->string('observation_notes')->nullable(); // "Indikator Pencapaian"
-            $table->string('location')->nullable(); // "Tempat"
-            
+            $table->date('journal_date'); 
+            $table->string('topic'); 
+            $table->string('observation_notes')->nullable();
+            $table->string('location')->nullable(); 
             $table->timestamps();
         });
     }

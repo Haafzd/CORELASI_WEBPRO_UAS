@@ -9,7 +9,8 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="fw-bold text-dark mb-1">{{ $subject->name }} ({{ $subject->code }}) —
-                    {{ $session->classroom->name ?? 'Kelas' }}</h2>
+                    {{ $session->classroom->name ?? 'Kelas' }}
+                </h2>
             </div>
         </div>
 
@@ -406,15 +407,15 @@
                             }
 
                             const row = `
-                                <tr>
-                                    <td class="px-3 fw-bold text-secondary">${index + 1}</td>
-                                    <td class="fw-medium text-dark">${s.name}</td>
-                                    <td class="text-secondary small" style="max-width:250px">${s.note}</td>
-                                    <td class="text-center px-3" id="score-cell-${s.nis}">
-                                        ${scoreHtml}
-                                    </td>
-                                </tr>
-                            `;
+                                    <tr>
+                                        <td class="px-3 fw-bold text-secondary">${index + 1}</td>
+                                        <td class="fw-medium text-dark">${s.name}</td>
+                                        <td class="text-secondary small" style="max-width:250px">${s.note}</td>
+                                        <td class="text-center px-3" id="score-cell-${s.nis}">
+                                            ${scoreHtml}
+                                        </td>
+                                    </tr>
+                                `;
                             tbody.insertAdjacentHTML('beforeend', row);
                         });
                     }
@@ -427,19 +428,19 @@
         function enableGrading(btn, assignId, nis) {
             const cell = btn.closest('td');
             cell.innerHTML = `
-                <div class="input-group input-group-sm justify-content-center" style="max-width: 140px; margin:0 auto;">
-                    <input type="number" 
-                           class="form-control text-center fw-bold" 
-                           id="input-${nis}" 
-                           min="0" max="100" 
-                           placeholder="0-100"
-                           oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3); if(Number(this.value) > 100) this.value = 100;"
-                    >
-                    <button class="btn btn-success" type="button" onclick="saveGrade('${assignId}', '${nis}')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/></svg>
-                    </button>
-                </div>
-            `;
+                    <div class="input-group input-group-sm justify-content-center" style="max-width: 140px; margin:0 auto;">
+                        <input type="number" 
+                               class="form-control text-center fw-bold" 
+                               id="input-${nis}" 
+                               min="0" max="100" 
+                               placeholder="0-100"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3); if(Number(this.value) > 100) this.value = 100;"
+                        >
+                        <button class="btn btn-success" type="button" onclick="saveGrade('${assignId}', '${nis}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/></svg>
+                        </button>
+                    </div>
+                `;
             document.getElementById(`input-${nis}`).focus();
         }
 

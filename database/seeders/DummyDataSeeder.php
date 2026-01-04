@@ -7,15 +7,12 @@ use Illuminate\Database\Seeder;
 
 class DummyDataSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+   
     public function run(): void
     {
         $sessions = \App\Models\ScheduleSession::with(['classroom.students', 'subject', 'teacher'])->get();
 
         foreach($sessions as $session) {
-            // 1. Create Materials (3 per session)
             for($m=1; $m<=3; $m++) {
                 \App\Models\LearningMaterial::create([
                     'schedule_session_id' => $session->id,
@@ -27,7 +24,7 @@ class DummyDataSeeder extends Seeder
                 ]);
             }
 
-            // 2. Create Assignments (2 per session)
+          
             $assignments = [];
             for($t=1; $t<=2; $t++) {
                 $deadline = now()->addDays(rand(-5, 5));
@@ -42,33 +39,29 @@ class DummyDataSeeder extends Seeder
                 ]);
             }
 
-            // 3. Create History BAP (Teaching Journal)
-            // Generate 4 past meetings
+           
             $weekdayMap = [
                 'Senin' => 0, 'Selasa' => 1, 'Rabu' => 2, 
                 'Kamis' => 3, 'Jumat' => 4, 'Sabtu' => 5, 'Minggu' => 6
             ];
             
-            // Default to Monday (0) if not found
             $addDays = $weekdayMap[$session->weekday] ?? 0;
 
             for($h=1; $h<=4; $h++) {
-                // startOfWeek() is Monday. addDays transforms it to the correct weekday.
-                // subWeeks($h) goes back $h weeks.
                 $date = now()->subWeeks($h)->startOfWeek()->addDays($addDays);
                 
                 $journal = \App\Models\TeachingJournal::create([
                     'schedule_session_id' => $session->id,
-                    'journal_date' => $date, // Correct date matching schedule
+                    'journal_date' => $date,
                     'topic' => "Pembahasan Bab {$h}: " . ($h % 2 == 0 ? 'Latihan Soal' : 'Teori Dasar'),
                     'observation_notes' => "Kegiatan belajar mengajar berjalan lancar. Siswa aktif bertanya. (Metode: Ceramah & Diskusi)",
                     'location' => $session->classroom->name,
                     'created_at' => $date
                 ]);
 
-                // Attendance for this journal
+              
                 foreach($session->classroom->students as $student) {
-                    $status = ['hadir','hadir','hadir','sakit','izin','alpa'][rand(0,5)]; // Mostly Hadir (Lowercase)
+                    $status = ['hadir','hadir','hadir','sakit','izin','alpa'][rand(0,5)]; 
                     \App\Models\AttendanceRecord::create([
                         'teaching_journal_id' => $journal->id,
                         'student_nis' => $student->nis,
@@ -78,16 +71,14 @@ class DummyDataSeeder extends Seeder
                 }
             }
 
-            // 4. Create Submissions for Assignments
             foreach($assignments as $assign) {
                 foreach($session->classroom->students as $student) {
-                    // Randomize: 70% chance to submit
                     if(rand(0, 10) > 3) {
                         $isLate = rand(0, 1) == 1;
                         $submittedAt = \Carbon\Carbon::parse($assign->deadline_at)->subHours(rand(1, 48));
                         if($isLate) $submittedAt = \Carbon\Carbon::parse($assign->deadline_at)->addHours(rand(1, 24));
                         
-                        $isGraded = rand(0, 1) == 1; // 50% chance graded
+                        $isGraded = rand(0, 1) == 1;
                         $score = $isGraded ? rand(70, 100) : null;
                         $status = $isGraded ? 'Sudah Dinilai' : ($isLate ? 'Terlambat' : 'Tepat Waktu');
 

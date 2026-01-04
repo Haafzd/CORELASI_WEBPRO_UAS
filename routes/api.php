@@ -16,13 +16,13 @@ Route::group([], function () {
     Route::get('teacher/sessions/{session}/data', [TeachingJournalController::class,'getData']);
     Route::post('teacher/sessions/{session}/journals', [TeachingJournalController::class,'store']);
 
-    // Mobile API specific
+    // Mobile API 
     Route::post('mobile/login', [\App\Http\Controllers\Api\MobileApiController::class, 'login']);
     Route::get('mobile/schedule', [\App\Http\Controllers\Api\MobileApiController::class, 'getTodaySchedule']);
     Route::post('mobile/teacher/sessions/{session}/journals', [TeachingJournalController::class, 'store']);
     Route::get('mobile/teacher/sessions/{session}/data', [TeachingJournalController::class, 'getData']);
     
-    // Fix for Mobile Scan
+    //  Mobile Scan
     Route::post('mobile/attendance/scan', [AttendanceController::class, 'scan']);
     
     // Notifications

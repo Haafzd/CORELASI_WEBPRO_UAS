@@ -41,14 +41,14 @@ Route::middleware(['auth'])->group(function() {
     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.readAll');
 
-    // TEST ROUTE (Remove later)
+    // TEST ROUTE 
     Route::get('/test-notif', function() {
         $user = \Illuminate\Support\Facades\Auth::user();
         $fakeAssignment = new \App\Models\Assignment();
         $fakeAssignment->id = 999;
         $fakeAssignment->title = "Tugas Percobaan (Dummy)";
         
-        $user->notify(new \App\Notifications\GradeReleased($fakeAssignment, 85)); // Score 85
+        $user->notify(new \App\Notifications\GradeReleased($fakeAssignment, 85)); 
         
         return back()->with('success', 'Notifikasi dummy berhasil dikirim! Silakan cek lonceng.');
     });
@@ -58,16 +58,16 @@ Route::middleware(['auth'])->group(function() {
         $tugasPalsu = (object) [
             'title' => 'Latihan Soal Aljabar',
             'class_id' => 1,
-            'schedule_session_id' => 1 // ID sesi dummy (pastikan ada di DB)
+            'schedule_session_id' => 1 // ID sesi dummy 
         ];
         $user->notify(new \App\Notifications\TugasMTK($tugasPalsu));
         return back()->with('success', 'Notifikasi TugasMTK terkirim! Cek lonceng.');
     });
 
-    // Clear All Notifications (Utility)
+    // Clear All Notifications 
     Route::get('/clear-notif', function() {
         \Illuminate\Support\Facades\Auth::user()->notifications()->delete();
-        return back()->with('success', 'Semua notifikasi berhasil dihapus bersih! ✨');
+        return back()->with('success', 'Semua notifikasi berhasil dihapus bersih!');
     });
 });
 

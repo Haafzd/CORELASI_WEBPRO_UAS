@@ -8,7 +8,7 @@ return new class extends Migration {
   public function up(): void {
     Schema::create('academic_years', function(Blueprint $t){
       $t->id();
-      $t->string('label',15)->unique(); // "YYYY/YYYY"
+      $t->string('label',15)->unique();
       $t->date('start_date');
       $t->date('end_date');
       $t->timestamps();
